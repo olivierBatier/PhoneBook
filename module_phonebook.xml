@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_phonebook" default="compile.module.phonebook">
+    <dirname property="module.phonebook.basedir" file="${ant.file.module_phonebook}"/>
+
+    <property name="module.jdk.home.phonebook" value="${project.jdk.home}"/>
+    <property name="module.jdk.bin.phonebook" value="${project.jdk.bin}"/>
+    <property name="module.jdk.classpath.phonebook" value="${project.jdk.classpath}"/>
+
+    <property name="compiler.args.phonebook" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+
+    <property name="phonebook.output.dir" value="${module.phonebook.basedir}/out/production/phoneBook"/>
+    <property name="phonebook.testoutput.dir" value="${module.phonebook.basedir}/out/test/phoneBook"/>
+
+    <path id="phonebook.module.bootclasspath">
+        <!-- Paths to be included in compilation bootclasspath -->
+    </path>
+
+    <path id="phonebook.module.production.classpath">
+        <path refid="${module.jdk.classpath.phonebook}"/>
+    </path>
+
+    <path id="phonebook.runtime.production.module.classpath">
+        <pathelement location="${phonebook.output.dir}"/>
+    </path>
+
+    <path id="phonebook.module.classpath">
+        <path refid="${module.jdk.classpath.phonebook}"/>
+        <pathelement location="${phonebook.output.dir}"/>
+    </path>
+
+    <path id="phonebook.runtime.module.classpath">
+        <pathelement location="${phonebook.testoutput.dir}"/>
+        <pathelement location="${phonebook.output.dir}"/>
+    </path>
+
+
+    <patternset id="excluded.from.module.phonebook">
+        <patternset refid="ignored.files"/>
+    </patternset>
+
+    <patternset id="excluded.from.compilation.phonebook">
+        <patternset refid="excluded.from.module.phonebook"/>
+    </patternset>
+
+    <path id="phonebook.module.sourcepath">
+        <dirset dir="${module.phonebook.basedir}">
+            <include name="src"/>
+        </dirset>
+    </path>
+
+
+    <target name="compile.module.phonebook" depends="compile.module.phonebook.production,compile.module.phonebook.tests"
+            description="Compile module phoneBook"/>
+
+    <target name="compile.module.phonebook.production" depends="register.custom.compilers"
+            description="Compile module phoneBook; production classes">
+        <mkdir dir="${phonebook.output.dir}"/>
+        <javac2 destdir="${phonebook.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}"
+                memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.phonebook}/javac">
+            <compilerarg line="${compiler.args.phonebook}"/>
+            <bootclasspath refid="phonebook.module.bootclasspath"/>
+            <classpath refid="phonebook.module.production.classpath"/>
+            <src refid="phonebook.module.sourcepath"/>
+            <patternset refid="excluded.from.compilation.phonebook"/>
+        </javac2>
+
+        <copy todir="${phonebook.output.dir}">
+            <fileset dir="${module.phonebook.basedir}/src">
+                <patternset refid="compiler.resources"/>
+                <type type="file"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="compile.module.phonebook.tests"
+            depends="register.custom.compilers,compile.module.phonebook.production"
+            description="compile module phoneBook; test classes" unless="skip.tests"/>
+
+    <target name="clean.module.phonebook" description="cleanup module">
+        <delete dir="${phonebook.output.dir}"/>
+        <delete dir="${phonebook.testoutput.dir}"/>
+    </target>
+</project>
